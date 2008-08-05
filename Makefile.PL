@@ -10,7 +10,8 @@ WriteMakefile
           'PREREQ_PM' => {
                            'Test::More' => 0,
                            'App::ZofCMS' => '0.0103',
-                           'DBI' => '1.602'
+                           'DBI' => '1.602',
+                           'Carp' => '1.04'
                          }
         )
 ;

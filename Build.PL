@@ -11,6 +11,7 @@ my $builder = Module::Build->new(
         'Test::More' => 0,
     },
     requires => {
+        'Carp'        => 1.04,
         'DBI'         => 1.602,
         'App::ZofCMS' => 0.0103,
     },

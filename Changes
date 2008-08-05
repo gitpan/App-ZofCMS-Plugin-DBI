@@ -1,5 +1,8 @@
 Revision history for App-ZofCMS-Plugin-DBI
 
-0.01    Date/time
+0.0102  August 5, 2008
+        Fixed missing prereqs
+
+0.0101  August 5, 2008
         First version, released on an unsuspecting world.
 
