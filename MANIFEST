@@ -1,0 +1,13 @@
+Build.PL
+Changes
+MANIFEST
+README
+lib/App/ZofCMS/Plugin/DBI.pm
+examples/config.txt
+examples/index.tmpl
+t/kwalitee.t
+t/00-load.t
+t/pod-coverage.t
+t/pod.t
+Makefile.PL
+META.yml
