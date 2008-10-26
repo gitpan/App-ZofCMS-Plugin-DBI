@@ -3,7 +3,7 @@ package App::ZofCMS::Plugin::DBI;
 use warnings;
 use strict;
 
-our $VERSION = '0.0102';
+our $VERSION = '0.0202';
 
 use strict;
 use warnings;
@@ -69,10 +69,20 @@ sub process {
                     $data_ref = $dbh->selectall_arrayref(
                         @{ $get->{sql} },
                     );
-                    $template->{ $get->{cell} }{ $get->{name} } = $self->_prepare_loop(
-                        $data_ref,
-                        $get->{layout},
-                    );
+
+                    if ( $get->{single} ) {
+                        $template->{ $get->{cell} }
+                        = {
+                            %{ $template->{ $get->{cell} } || {} },
+                            %{ $self->_prepare_loop($data_ref, $get->{layout})->[0] || {} },
+                        };
+                    }
+                    else {
+                        $template->{ $get->{cell} }{ $get->{name} } = $self->_prepare_loop(
+                            $data_ref,
+                            $get->{layout},
+                        );
+                    }
                 }
             }
         }
@@ -222,6 +232,7 @@ C<user>, C<pass> and C<opt> keys here if you wish.
     dbi => {
         dbi_get => {
             layout  => [ qw/name pass/ ],
+            single  => 1,
             sql     => [ 'SELECT * FROM test' ],
         },
     }
@@ -262,6 +273,17 @@ B<Mandatory>. Takes an arrayref as an argument which will be directly
 dereferenced into the L<DBI>'s method call specified by C<method> argument
 (see below). See L<App::ZofCMS::Plugin::Tagged> for possible expansion
 of possibilities you have here.
+
+=head3 C<single>
+
+    single => 1,
+
+B<Optional>. Takes either true or false values. Normally, the plugin will make
+a datastructure suitable for a C<< <tmpl_loop name=""> >>; however, if you expecting
+only one row from the table to be returned you can set C<single> parameter B<to a true value>
+and then the plugin will stuff appropriate values into C<{t}> special hashref where keys will
+be the names you specified in the C<layout> argument and values will be the values of the
+first row that was fetched from the database. B<By default is not specified> (false)
 
 =head3 C<type>
 
