@@ -3,7 +3,7 @@ package App::ZofCMS::Plugin::DBI;
 use warnings;
 use strict;
 
-our $VERSION = '0.0301';
+our $VERSION = '0.0311';
 
 use strict;
 use warnings;
@@ -69,6 +69,10 @@ sub process {
                     $data_ref = $dbh->selectall_arrayref(
                         @{ $get->{sql} },
                     );
+
+                    if ( $get->{process} ) {
+                        $get->{process}->( $data_ref, $template, $query, $config );
+                    }
 
                     if ( $get->{single} ) {
                         $template->{ $get->{cell} }
@@ -240,6 +244,9 @@ C<user>, C<pass> and C<opt> keys here if you wish.
             single  => 1,
             sql     => [ 'SELECT * FROM test' ],
             on_data => 'has_data',
+            process => sub {
+                my ( $data_ref, $template, $query, $config ) = @_;
+            }
         },
     }
 
@@ -356,6 +363,21 @@ usage for this would be to display some message if no data is available; e.g.:
     <tmpl_else>
         <p>I have no users for you</p>
     </tmpl_if>
+
+=head3 C<process>
+
+    dbi_get => {
+        process => sub {
+            my ( $data_ref, $template, $query, $config ) = @_;
+            # do stuff
+        }
+    ...
+
+B<Optional>. Takes a subref as a value. When specified the sub will be executed right after
+the data is fetched. The C<@_> will contain the following (in that order):
+C<$data_ref> - the return of L<DBI>'s C<selectall_arrayref> call, this may have other
+options later on when more methods are supported, the ZofCMS Template hashref, query
+hashref and L<App::ZofCMS::Config> object.
 
 =head2 C<dbi_set>
 

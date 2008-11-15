@@ -1,6 +1,9 @@
 Revision history for App-ZofCMS-Plugin-DBI
 
-0.0202  October 26, 2008
+0.0311  November 15, 2008
+        Added the 'process' option to dbi_get
+
+0.0301  November 14, 2008
         Added 'on_data' option to dbi_get
 
 0.0202  October 26, 2008
