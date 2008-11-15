@@ -1,6 +1,6 @@
 ---
 name: App-ZofCMS-Plugin-DBI
-version: 0.0202
+version: 0.0301
 author:
   - 'Zoffix Znet <zoffix@cpan.org>'
 abstract: DBI access from ZofCMS templates
@@ -16,7 +16,7 @@ build_requires:
 provides:
   App::ZofCMS::Plugin::DBI:
     file: lib/App/ZofCMS/Plugin/DBI.pm
-    version: 0.0202
+    version: 0.0301
 generated_by: Module::Build version 0.2808
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

@@ -3,7 +3,7 @@ package App::ZofCMS::Plugin::DBI;
 use warnings;
 use strict;
 
-our $VERSION = '0.0202';
+our $VERSION = '0.0301';
 
 use strict;
 use warnings;
@@ -82,6 +82,11 @@ sub process {
                             $data_ref,
                             $get->{layout},
                         );
+                    }
+
+                    if ( $get->{on_data} ) {
+                        $template->{t}{ $get->{on_data} } = 1
+                            if @$data_ref;
                     }
                 }
             }
@@ -234,6 +239,7 @@ C<user>, C<pass> and C<opt> keys here if you wish.
             layout  => [ qw/name pass/ ],
             single  => 1,
             sql     => [ 'SELECT * FROM test' ],
+            on_data => 'has_data',
         },
     }
 
@@ -327,6 +333,29 @@ create the C<name> key with data from the database. C<cell> must point
 to a key with a hashref in it (though, keep autovivification in mind).
 Possibly the sane values for this are either C<t> or C<d>. B<Defaults to:>
 C<t> (the data will be available in your L<HTML::Template> templates)
+
+=head3 C<on_data>
+
+    dbi_get => {
+        on_data => 'has_data',
+    ...
+
+B<Optional>. Takes a string as an argument. When specified will set the key in C<{t}> name of
+which is specified C<on_data> to C<1> when there are any rows that were selected. Typical
+usage for this would be to display some message if no data is available; e.g.:
+
+    dbi_get => {
+        layout => [ qw/name last_name/ ],
+        sql => [ 'SELECT * FROM users' ],
+        on_data => 'has_users',
+    },
+
+    <tmpl_if name="has_users">
+        <p>Here are the users:</p>
+        <!-- display data here -->
+    <tmpl_else>
+        <p>I have no users for you</p>
+    </tmpl_if>
 
 =head2 C<dbi_set>
 
