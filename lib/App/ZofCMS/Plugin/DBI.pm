@@ -3,7 +3,7 @@ package App::ZofCMS::Plugin::DBI;
 use warnings;
 use strict;
 
-our $VERSION = '0.0311';
+our $VERSION = '0.0312';
 
 use strict;
 use warnings;
@@ -74,17 +74,25 @@ sub process {
                         $get->{process}->( $data_ref, $template, $query, $config );
                     }
 
+                    my $is_hash = ${ $get->{sql} || []}[1];
+                    $is_hash = ref $is_hash->{Slice} eq 'HASH' ? 1 : 0;
+
                     if ( $get->{single} ) {
                         $template->{ $get->{cell} }
                         = {
                             %{ $template->{ $get->{cell} } || {} },
-                            %{ $self->_prepare_loop($data_ref, $get->{layout})->[0] || {} },
+                            %{ $self->_prepare_loop_arrayref(
+                                    $data_ref, $get->{layout}, $is_hash
+                                )->[0] || {}
+                             },
                         };
                     }
                     else {
-                        $template->{ $get->{cell} }{ $get->{name} } = $self->_prepare_loop(
+                        $template->{ $get->{cell} }{ $get->{name} }
+                        = $self->_prepare_loop_arrayref(
                             $data_ref,
                             $get->{layout},
+                            $is_hash,
                         );
                     }
 
@@ -98,16 +106,24 @@ sub process {
     }
 }
 
-sub _prepare_loop {
-    my ( $self, $data_ref, $layout_ref ) = @_;
+sub _prepare_loop_arrayref {
+    my ( $self, $data_ref, $layout_ref, $is_hash ) = @_;
     
     my @loop;
     for my $entry_ref ( @$data_ref ) {
-        push @loop, {
-            map +(
-                $layout_ref->[$_] => $entry_ref->[$_]
-            ), 0 .. $#$entry_ref
-        };
+        if ( $is_hash ) {
+            if ( defined $layout_ref ) {
+                @{ $entry_ref = {} }{ @$layout_ref } = @$entry_ref{ @$layout_ref };
+            }
+            push @loop, $entry_ref;
+        }
+        else {
+            push @loop, {
+                map +(
+                    $layout_ref->[$_] => $entry_ref->[$_]
+                ), 0 .. $#$entry_ref
+            };
+        }
     }
     
     return \@loop;
@@ -273,10 +289,15 @@ that hashref are as follows:
 
     layout  => [ qw/name pass time info/ ],
 
-B<Mandatory>. Takes an arrayref as an argument.
+B<Optional>. Takes an arrayref as an argument.
 Specifies the name of C<< <tmpl_var name=""> >>s in your
 C<< <tmpl_loop> >> (see C<type> argument below) to which map the columns
-retrieved from the database, see C<SYNOPSIS> section above.
+retrieved from the database, see C<SYNOPSIS> section above. If the second element in your
+C<sql> arrayref is a hashref with a key C<Slice> whose value is a hashref, then C<layout>
+specifies which keys to keep, since C<selectall_arrayref()> (the only currently supported
+method) will return an arrayref of hashrefs where keys are column names and values are
+the values. Not specifying C<layout> is only allowed when C<Slice> is a hashref and in that
+case all column names will be kept. B<By default> is not specified.
 
 =head3 C<sql>
 

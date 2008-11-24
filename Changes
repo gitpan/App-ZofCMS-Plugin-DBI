@@ -1,5 +1,9 @@
 Revision history for App-ZofCMS-Plugin-DBI
 
+0.0312  November 15, 2008
+        Made a change to support { Slice => {} }, and 'layout' to behave differently when
+        { Slice => {} }, is specified
+
 0.0311  November 15, 2008
         Added the 'process' option to dbi_get
 
