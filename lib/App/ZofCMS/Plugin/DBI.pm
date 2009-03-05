@@ -3,7 +3,7 @@ package App::ZofCMS::Plugin::DBI;
 use warnings;
 use strict;
 
-our $VERSION = '0.0312';
+our $VERSION = '0.0322';
 
 use strict;
 use warnings;
@@ -53,6 +53,12 @@ sub process {
     }
     
     if ( $dbi_conf->{dbi_get} ) {
+        if ( ref $dbi_conf->{dbi_get} eq 'CODE' ) {
+            $dbi_conf->{dbi_get} = $dbi_conf->{dbi_get}->(
+                $query, $template, $config, $dbh
+            );
+        }
+
         if ( ref $dbi_conf->{dbi_get} eq 'HASH' ) {
             $dbi_conf->{dbi_get} = [ $dbi_conf->{dbi_get} ];
         }
@@ -267,6 +273,20 @@ C<user>, C<pass> and C<opt> keys here if you wish.
     }
 
     dbi => {
+        dbi_get => sub {
+            my ( $query, $template, $config, $dbh ) = @_;
+            return {
+                sql     => [
+                    'SELECT * FROM test WHERE id = ?',
+                    { Slice => {} },
+                    $query->{id},
+                ],
+                on_data => 'has_data',
+            }
+        },
+    },
+
+    dbi => {
         dbi_get => [
             {
                 layout  => [ qw/name pass/ ],
@@ -279,7 +299,12 @@ C<user>, C<pass> and C<opt> keys here if you wish.
         ],
     }
 
-The C<dbi_get> key takes either a hashref or an arrayref as a value.
+The C<dbi_get> key takes either a hashref, a subref or an arrayref as a value.
+If the value is a subref, the subref will be evaluated and its value will be assigned to C<dbi_get>; the C<@_> of that subref will contain the following (in that order):
+C<$query, $template, $config, $dbh> where C<$query> is query string hashref, C<$template> is
+ZofCMS Template hashref, $config is the L<App::ZofCMS::Config> object and C<$dbh> is a
+L<DBI> database handle (already connected).
+
 If the value is a hashref it is the same as having just that hashref
 inside the arrayref. Each element of the arrayref must be a hashref with
 instructions on how to retrieve the data. The possible keys/values of

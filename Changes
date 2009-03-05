@@ -1,5 +1,8 @@
 Revision history for App-ZofCMS-Plugin-DBI
 
+0.0322  March 5, 2008
+        Added support to run a subref for dbi_get
+
 0.0312  November 15, 2008
         Made a change to support { Slice => {} }, and 'layout' to behave differently when
         { Slice => {} }, is specified
