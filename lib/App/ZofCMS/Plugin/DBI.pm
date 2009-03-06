@@ -3,7 +3,7 @@ package App::ZofCMS::Plugin::DBI;
 use warnings;
 use strict;
 
-our $VERSION = '0.0322';
+our $VERSION = '0.0331';
 
 use strict;
 use warnings;
@@ -49,6 +49,18 @@ sub process {
             else {
                 $dbh->do( @$set );
             }
+        }
+        if ( defined $dbi_conf->{last_insert_id} ) {
+            $dbi_conf->{last_insert_id} = [
+                undef,
+                undef,
+                undef,
+                undef,
+            ] unless ref $dbi_conf->{last_insert_id};
+
+            $template->{d}{last_insert_id} = $dbh->last_insert_id(
+                @{ $dbi_conf->{last_insert_id} }
+            );
         }
     }
     
@@ -223,6 +235,7 @@ L<App::ZofCMS::Config> and L<App::ZofCMS::Template>
         user    => 'test', # user,
         pass    => 'test', # pass
         opt     => { RaiseError => 1, AutoCommit => 0 },
+        last_insert_id => 1,
     },
 
 You can set these either in your ZofCMS template's C<dbi> key or in your
@@ -250,6 +263,26 @@ the database you will be accessing with your plugin.
 
 The C<opt> key takes a hashref of any additional options you want to
 pass to C<connect_cached> L<DBI>'s method.
+
+=head2 C<last_insert_id>
+
+    last_insert_id => 1,
+    last_insert_id => [
+        $catalog,
+        $schema,
+        $table,
+        $field,
+        \%attr,
+    ],
+
+B<Optional>. When set to a true value, the plugin will attempt to figure out the
+C<LAST_INSERT_ID()> after processing C<dbi_set> (see below). The result will be placed
+into C<d> ZofCMS Template special key under key C<last_insert_id> (currently there is no
+way to place it anywhere else). The value of C<last_insert_id> argument can be either a true
+value or an arrayref. Having any true value but an arrayref is the same as having an
+arrayref with three C<undef>s. That arrayref will be directly dereferenced into L<DBI>'s
+C<last_insert_id()> method. See documentation for L<DBI> for more information.
+B<By default is not specified> (false)
 
 =head1 RETRIEVING FROM AND SETTING DATA IN THE DATABASE
 

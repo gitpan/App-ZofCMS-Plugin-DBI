@@ -1,5 +1,8 @@
 Revision history for App-ZofCMS-Plugin-DBI
 
+0.0331  March 6, 2008
+        Added last_insert_id functionality
+
 0.0322  March 5, 2008
         Added support to run a subref for dbi_get
 
