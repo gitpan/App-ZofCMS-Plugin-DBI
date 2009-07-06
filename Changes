@@ -1,5 +1,8 @@
 Revision history for App-ZofCMS-Plugin-DBI
 
+0.0341  July 5, 2009
+        Added a method to choose whether dbi_get or dbi_set would run first
+
 0.0331  March 6, 2008
         Added last_insert_id functionality
 

@@ -3,7 +3,7 @@ package App::ZofCMS::Plugin::DBI;
 use warnings;
 use strict;
 
-our $VERSION = '0.0331';
+our $VERSION = '0.0341';
 
 use strict;
 use warnings;
@@ -16,6 +16,7 @@ sub process {
     my ( $self, $template, $query, $config ) = @_;
     
     my $dbi_conf = {
+        do_dbi_set_first    => 1,
         %{ $config->conf->{dbi} || {} },
         %{ delete $template->{dbi} || {} },
     };
@@ -27,97 +28,119 @@ sub process {
     my $dbh = DBI->connect_cached(
         @$dbi_conf{ qw/dsn user pass opt/ }
     );
-    
-    if ( $dbi_conf->{dbi_set} ) {
-        if ( ref $dbi_conf->{dbi_set} eq 'CODE'
-            or not ref $dbi_conf->{dbi_set}[0]
-        ) {
-            $dbi_conf->{dbi_set} = [ $dbi_conf->{dbi_set} ];
-        }
-        
-        for my $set ( @{ $dbi_conf->{dbi_set} } ) {
-            if ( ref $set eq 'CODE' ) {
-                my $sub_set_ref = $set->($query, $template, $config, $dbh );
 
-                $sub_set_ref = [ $sub_set_ref ]
-                    unless not $sub_set_ref
-                        or ( ref $sub_set_ref eq 'ARRAY'
-                            and ref $sub_set_ref->[0] eq 'ARRAY'
-                        );
-                $dbh->do( @$_ ) for @{ $sub_set_ref || [] };
-            }
-            else {
-                $dbh->do( @$set );
-            }
+    if ( $dbi_conf->{do_dbi_set_first} ) {
+        if ( $dbi_conf->{dbi_set} ) {
+            _do_dbi_set( $dbi_conf, $query, $template, $config, $dbh );
         }
-        if ( defined $dbi_conf->{last_insert_id} ) {
-            $dbi_conf->{last_insert_id} = [
-                undef,
-                undef,
-                undef,
-                undef,
-            ] unless ref $dbi_conf->{last_insert_id};
-
-            $template->{d}{last_insert_id} = $dbh->last_insert_id(
-                @{ $dbi_conf->{last_insert_id} }
-            );
+        if ( $dbi_conf->{dbi_get} ) {
+            _do_dbi_get( $dbi_conf, $query, $template, $config, $dbh );
         }
     }
-    
-    if ( $dbi_conf->{dbi_get} ) {
-        if ( ref $dbi_conf->{dbi_get} eq 'CODE' ) {
-            $dbi_conf->{dbi_get} = $dbi_conf->{dbi_get}->(
-                $query, $template, $config, $dbh
-            );
+    else {
+        if ( $dbi_conf->{dbi_get} ) {
+            $self->_do_dbi_get( $dbi_conf, $query, $template, $config, $dbh );
         }
-
-        if ( ref $dbi_conf->{dbi_get} eq 'HASH' ) {
-            $dbi_conf->{dbi_get} = [ $dbi_conf->{dbi_get} ];
+        if ( $dbi_conf->{dbi_set} ) {
+            $self->_do_dbi_set( $dbi_conf, $query, $template, $config, $dbh );
         }
+    }
+}
 
-        for my $get ( @{ $dbi_conf->{dbi_get} } ) {
-            $get->{type}   ||= 'loop';
-            $get->{name}   ||= 'dbi_var';
-            $get->{method} ||= 'selectall';
-            $get->{cell}   ||= 't';
+sub _do_dbi_set {
+    my ( $self, $dbi_conf, $query, $template, $config, $dbh ) = @_;
 
-            if ( $get->{type} eq 'loop' ) {
-                my $data_ref;
-                if ( $get->{method} eq 'selectall' ) {
-                    $data_ref = $dbh->selectall_arrayref(
-                        @{ $get->{sql} },
+
+    if ( ref $dbi_conf->{dbi_set} eq 'CODE'
+        or not ref $dbi_conf->{dbi_set}[0]
+    ) {
+        $dbi_conf->{dbi_set} = [ $dbi_conf->{dbi_set} ];
+    }
+
+    for my $set ( @{ $dbi_conf->{dbi_set} } ) {
+        if ( ref $set eq 'CODE' ) {
+            my $sub_set_ref = $set->($query, $template, $config, $dbh );
+
+            $sub_set_ref = [ $sub_set_ref ]
+                unless not $sub_set_ref
+                    or ( ref $sub_set_ref eq 'ARRAY'
+                        and ref $sub_set_ref->[0] eq 'ARRAY'
                     );
+            $dbh->do( @$_ ) for @{ $sub_set_ref || [] };
+        }
+        else {
+            $dbh->do( @$set );
+        }
+    }
+    if ( defined $dbi_conf->{last_insert_id} ) {
+        $dbi_conf->{last_insert_id} = [
+            undef,
+            undef,
+            undef,
+            undef,
+        ] unless ref $dbi_conf->{last_insert_id};
 
-                    if ( $get->{process} ) {
-                        $get->{process}->( $data_ref, $template, $query, $config );
-                    }
+        $template->{d}{last_insert_id} = $dbh->last_insert_id(
+            @{ $dbi_conf->{last_insert_id} }
+        );
+    }
+}
 
-                    my $is_hash = ${ $get->{sql} || []}[1];
-                    $is_hash = ref $is_hash->{Slice} eq 'HASH' ? 1 : 0;
+sub _do_dbi_get {
+    my ( $self, $dbi_conf, $query, $template, $config, $dbh ) = @_;
 
-                    if ( $get->{single} ) {
-                        $template->{ $get->{cell} }
-                        = {
-                            %{ $template->{ $get->{cell} } || {} },
-                            %{ $self->_prepare_loop_arrayref(
-                                    $data_ref, $get->{layout}, $is_hash
-                                )->[0] || {}
-                             },
-                        };
-                    }
-                    else {
-                        $template->{ $get->{cell} }{ $get->{name} }
-                        = $self->_prepare_loop_arrayref(
-                            $data_ref,
-                            $get->{layout},
-                            $is_hash,
-                        );
-                    }
+    if ( ref $dbi_conf->{dbi_get} eq 'CODE' ) {
+        $dbi_conf->{dbi_get} = $dbi_conf->{dbi_get}->(
+            $query, $template, $config, $dbh
+        );
+    }
 
-                    if ( $get->{on_data} ) {
-                        $template->{t}{ $get->{on_data} } = 1
-                            if @$data_ref;
-                    }
+    if ( ref $dbi_conf->{dbi_get} eq 'HASH' ) {
+        $dbi_conf->{dbi_get} = [ $dbi_conf->{dbi_get} ];
+    }
+
+    for my $get ( @{ $dbi_conf->{dbi_get} } ) {
+        $get->{type}   ||= 'loop';
+        $get->{name}   ||= 'dbi_var';
+        $get->{method} ||= 'selectall';
+        $get->{cell}   ||= 't';
+
+        if ( $get->{type} eq 'loop' ) {
+            my $data_ref;
+            if ( $get->{method} eq 'selectall' ) {
+                $data_ref = $dbh->selectall_arrayref(
+                    @{ $get->{sql} },
+                );
+
+                if ( $get->{process} ) {
+                    $get->{process}->( $data_ref, $template, $query, $config );
+                }
+
+                my $is_hash = ${ $get->{sql} || []}[1];
+                $is_hash = ref $is_hash->{Slice} eq 'HASH' ? 1 : 0;
+
+                if ( $get->{single} ) {
+                    $template->{ $get->{cell} }
+                    = {
+                        %{ $template->{ $get->{cell} } || {} },
+                        %{ $self->_prepare_loop_arrayref(
+                                $data_ref, $get->{layout}, $is_hash
+                            )->[0] || {}
+                            },
+                    };
+                }
+                else {
+                    $template->{ $get->{cell} }{ $get->{name} }
+                    = $self->_prepare_loop_arrayref(
+                        $data_ref,
+                        $get->{layout},
+                        $is_hash,
+                    );
+                }
+
+                if ( $get->{on_data} ) {
+                    $template->{t}{ $get->{on_data} } = 1
+                        if @$data_ref;
                 }
             }
         }
@@ -236,6 +259,7 @@ L<App::ZofCMS::Config> and L<App::ZofCMS::Template>
         pass    => 'test', # pass
         opt     => { RaiseError => 1, AutoCommit => 0 },
         last_insert_id => 1,
+        do_dbi_set_first => 1,
     },
 
 You can set these either in your ZofCMS template's C<dbi> key or in your
@@ -283,6 +307,14 @@ value or an arrayref. Having any true value but an arrayref is the same as havin
 arrayref with three C<undef>s. That arrayref will be directly dereferenced into L<DBI>'s
 C<last_insert_id()> method. See documentation for L<DBI> for more information.
 B<By default is not specified> (false)
+
+=head2 C<do_dbi_set_first>
+
+    do_dbi_set_first => 1,
+
+B<Optional>. Takes either true or false values. If set to a true value, the plugin
+will first execute C<dbi_set> and then C<dbi_get>; if set to a false value, the order will
+be reversed (i.e. C<dbi_get> first and then C<dbi_set> will be executed. B<Defaults to:> C<1>
 
 =head1 RETRIEVING FROM AND SETTING DATA IN THE DATABASE
 

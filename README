@@ -1,16 +1,10 @@
 App-ZofCMS-Plugin-DBI
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
+Module is a L<App::ZofCMS> plugin which provides means to retrieve
+and push data to/from SQL databases using L<DBI> module.
 
-A README file is required for CPAN modules since CPAN extracts the README
-file from a module distribution so that people browsing the archive
-can use it to get an idea of the module's uses. It is usually a good idea
-to provide version information here so that people can decide whether
-fixes for the module are worth downloading.
-
+Current functionality is limited. More will be added as the need arrises,
+let me know if you need something extra.
 
 INSTALLATION
 
