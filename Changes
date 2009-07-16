@@ -1,5 +1,8 @@
 Revision history for App-ZofCMS-Plugin-DBI
 
+0.0342  July 5, 2009
+        Fixed a "call on undef" bug that was introduced in the previous version
+
 0.0341  July 5, 2009
         Added a method to choose whether dbi_get or dbi_set would run first
 

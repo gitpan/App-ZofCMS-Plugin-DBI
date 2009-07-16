@@ -3,7 +3,7 @@ package App::ZofCMS::Plugin::DBI;
 use warnings;
 use strict;
 
-our $VERSION = '0.0341';
+our $VERSION = '0.0342';
 
 use strict;
 use warnings;
@@ -31,10 +31,10 @@ sub process {
 
     if ( $dbi_conf->{do_dbi_set_first} ) {
         if ( $dbi_conf->{dbi_set} ) {
-            _do_dbi_set( $dbi_conf, $query, $template, $config, $dbh );
+            $self->_do_dbi_set( $dbi_conf, $query, $template, $config, $dbh );
         }
         if ( $dbi_conf->{dbi_get} ) {
-            _do_dbi_get( $dbi_conf, $query, $template, $config, $dbh );
+            $self->_do_dbi_get( $dbi_conf, $query, $template, $config, $dbh );
         }
     }
     else {
@@ -49,7 +49,6 @@ sub process {
 
 sub _do_dbi_set {
     my ( $self, $dbi_conf, $query, $template, $config, $dbh ) = @_;
-
 
     if ( ref $dbi_conf->{dbi_set} eq 'CODE'
         or not ref $dbi_conf->{dbi_set}[0]
