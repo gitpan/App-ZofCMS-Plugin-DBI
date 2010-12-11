@@ -1,23 +1,25 @@
 ---
-name: App-ZofCMS-Plugin-DBI
-version: 0.0342
+abstract: 'DBI access from ZofCMS templates'
 author:
   - 'Zoffix Znet <zoffix@cpan.org>'
-abstract: DBI access from ZofCMS templates
+build_requires:
+  Test::More: 0
+configure_requires:
+  Module::Build: 0.36
+generated_by: 'Module::Build version 0.3607'
 license: perl
-resources:
-  license: http://dev.perl.org/licenses/
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: App-ZofCMS-Plugin-DBI
+provides:
+  App::ZofCMS::Plugin::DBI:
+    file: lib/App/ZofCMS/Plugin/DBI.pm
+    version: 0.0401
 requires:
   App::ZofCMS: 0.0103
   Carp: 1.04
   DBI: 1.602
-build_requires:
-  Test::More: 0
-provides:
-  App::ZofCMS::Plugin::DBI:
-    file: lib/App/ZofCMS/Plugin/DBI.pm
-    version: 0.0342
-generated_by: Module::Build version 0.280801
-meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
+resources:
+  license: http://dev.perl.org/licenses/
+version: 0.0401

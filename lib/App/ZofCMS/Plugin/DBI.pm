@@ -3,7 +3,7 @@ package App::ZofCMS::Plugin::DBI;
 use warnings;
 use strict;
 
-our $VERSION = '0.0342';
+our $VERSION = '0.0401';
 
 use strict;
 use warnings;
@@ -119,13 +119,23 @@ sub _do_dbi_get {
                 $is_hash = ref $is_hash->{Slice} eq 'HASH' ? 1 : 0;
 
                 if ( $get->{single} ) {
+                    
+                    my $loop_ref = $self->_prepare_loop_arrayref(
+                        $data_ref, $get->{layout}, $is_hash
+                    )->[0] || {};
+                    
+                    if ( defined $get->{single_prefix} ) {
+                        my $pre = $get->{single_prefix};
+                        
+                        $loop_ref->{"$pre$_"}
+                        = delete $loop_ref->{$_}
+                        for keys %$loop_ref;
+                    }
+                    
                     $template->{ $get->{cell} }
                     = {
                         %{ $template->{ $get->{cell} } || {} },
-                        %{ $self->_prepare_loop_arrayref(
-                                $data_ref, $get->{layout}, $is_hash
-                            )->[0] || {}
-                            },
+                        %$loop_ref,
                     };
                 }
                 else {
@@ -407,6 +417,17 @@ only one row from the table to be returned you can set C<single> parameter B<to 
 and then the plugin will stuff appropriate values into C<{t}> special hashref where keys will
 be the names you specified in the C<layout> argument and values will be the values of the
 first row that was fetched from the database. B<By default is not specified> (false)
+
+=head3 C<single_prefix>
+
+    single_prefix => 'dbi_',
+
+B<Optional>. Takes a scalar as a value. Applies only when 
+C<single> (see above) is set to a true value. The value you specify here
+will be prepended to any key names your C<dbi_get> generates. This is
+useful when you're grabbing a single record from the database and
+dumping it directly into C<t> special key; using the prefix helps
+prevent any name clashes. B<By default is not specified>
 
 =head3 C<type>
 

@@ -1,5 +1,8 @@
 Revision history for App-ZofCMS-Plugin-DBI
 
+0.0401  December 10, 2010
+        Added an `single_prefix` option
+
 0.0342  July 5, 2009
         Fixed a "call on undef" bug that was introduced in the previous version
 
