@@ -3,7 +3,7 @@ package App::ZofCMS::Plugin::DBI;
 use warnings;
 use strict;
 
-our $VERSION = '0.0401';
+our $VERSION = '0.0402';
 
 use strict;
 use warnings;

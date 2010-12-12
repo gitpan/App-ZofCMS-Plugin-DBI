@@ -1,5 +1,8 @@
 Revision history for App-ZofCMS-Plugin-DBI
 
+0.0402  December 11, 2010
+        Removed kwalitee.t test from distro...
+
 0.0401  December 10, 2010
         Added an `single_prefix` option
 
