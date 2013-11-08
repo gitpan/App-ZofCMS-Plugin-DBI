@@ -13,8 +13,9 @@ my $builder = Module::Build->new(
     requires => {
         'Carp'        => 1.04,
         'DBI'         => 1.602,
-        'App::ZofCMS' => 0.0103,
+        'perl'        => '5.006',
     },
+    configure_requires => { 'Module::Build' => 0 },
     add_to_cleanup      => [ 'App-ZofCMS-Plugin-DBI-*' ],
     create_makefile_pl => 'traditional',
 );

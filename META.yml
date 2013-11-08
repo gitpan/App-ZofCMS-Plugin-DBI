@@ -5,8 +5,9 @@ author:
 build_requires:
   Test::More: 0
 configure_requires:
-  Module::Build: 0.36
-generated_by: 'Module::Build version 0.3607'
+  Module::Build: 0
+dynamic_config: 1
+generated_by: 'Module::Build version 0.4007, CPAN::Meta::Converter version 2.132830'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -15,11 +16,11 @@ name: App-ZofCMS-Plugin-DBI
 provides:
   App::ZofCMS::Plugin::DBI:
     file: lib/App/ZofCMS/Plugin/DBI.pm
-    version: 0.0402
+    version: 0.0403
 requires:
-  App::ZofCMS: 0.0103
   Carp: 1.04
   DBI: 1.602
+  perl: 5.006
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.0402
+version: 0.0403

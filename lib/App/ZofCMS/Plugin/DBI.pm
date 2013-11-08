@@ -3,7 +3,7 @@ package App::ZofCMS::Plugin::DBI;
 use warnings;
 use strict;
 
-our $VERSION = '0.0402';
+our $VERSION = '0.0403';
 
 use strict;
 use warnings;
@@ -182,6 +182,8 @@ sub _prepare_loop_arrayref {
 
 1;
 __END__
+
+=encoding utf8
 
 =head1 NAME
 
