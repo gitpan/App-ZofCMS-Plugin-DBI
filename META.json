@@ -35,7 +35,7 @@
    "provides" : {
       "App::ZofCMS::Plugin::DBI" : {
          "file" : "lib/App/ZofCMS/Plugin/DBI.pm",
-         "version" : "0.0403"
+         "version" : "0.0404"
       }
    },
    "release_status" : "stable",
@@ -44,5 +44,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "0.0403"
+   "version" : "0.0404"
 }

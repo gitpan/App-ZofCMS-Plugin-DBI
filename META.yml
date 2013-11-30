@@ -16,11 +16,11 @@ name: App-ZofCMS-Plugin-DBI
 provides:
   App::ZofCMS::Plugin::DBI:
     file: lib/App/ZofCMS/Plugin/DBI.pm
-    version: 0.0403
+    version: 0.0404
 requires:
   Carp: 1.04
   DBI: 1.602
   perl: 5.006
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.0403
+version: 0.0404

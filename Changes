@@ -1,5 +1,9 @@
 Revision history for App-ZofCMS-Plugin-DBI
 
+0.0404  2013-11-30
+        - Fixed a broken test
+        - Added autogeneration of README from POD
+
 0.0403  2013-11-07
         - Minor fixes to comply with specs and Kwalitee game
 

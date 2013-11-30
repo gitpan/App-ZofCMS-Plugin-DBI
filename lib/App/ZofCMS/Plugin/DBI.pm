@@ -3,7 +3,7 @@ package App::ZofCMS::Plugin::DBI;
 use warnings;
 use strict;
 
-our $VERSION = '0.0403';
+our $VERSION = '0.0404';
 
 use strict;
 use warnings;
@@ -14,13 +14,13 @@ sub new { bless {}, shift; }
 
 sub process {
     my ( $self, $template, $query, $config ) = @_;
-    
+
     my $dbi_conf = {
         do_dbi_set_first    => 1,
         %{ $config->conf->{dbi} || {} },
         %{ delete $template->{dbi} || {} },
     };
-    
+
     $dbi_conf or return;
 
     ( $dbi_conf->{dbi_set} or $dbi_conf->{dbi_get} )
@@ -119,19 +119,19 @@ sub _do_dbi_get {
                 $is_hash = ref $is_hash->{Slice} eq 'HASH' ? 1 : 0;
 
                 if ( $get->{single} ) {
-                    
+
                     my $loop_ref = $self->_prepare_loop_arrayref(
                         $data_ref, $get->{layout}, $is_hash
                     )->[0] || {};
-                    
+
                     if ( defined $get->{single_prefix} ) {
                         my $pre = $get->{single_prefix};
-                        
+
                         $loop_ref->{"$pre$_"}
                         = delete $loop_ref->{$_}
                         for keys %$loop_ref;
                     }
-                    
+
                     $template->{ $get->{cell} }
                     = {
                         %{ $template->{ $get->{cell} } || {} },
@@ -158,7 +158,7 @@ sub _do_dbi_get {
 
 sub _prepare_loop_arrayref {
     my ( $self, $data_ref, $layout_ref, $is_hash ) = @_;
-    
+
     my @loop;
     for my $entry_ref ( @$data_ref ) {
         if ( $is_hash ) {
@@ -175,7 +175,7 @@ sub _prepare_loop_arrayref {
             };
         }
     }
-    
+
     return \@loop;
 }
 
@@ -233,7 +233,7 @@ In your L<HTML::Template> template:
             <input type="submit" value="Add">
         </div>
     </form>
-    
+
     <table>
         <tmpl_loop name="dbi_var">
             <tr>
@@ -424,7 +424,7 @@ first row that was fetched from the database. B<By default is not specified> (fa
 
     single_prefix => 'dbi_',
 
-B<Optional>. Takes a scalar as a value. Applies only when 
+B<Optional>. Takes a scalar as a value. Applies only when
 C<single> (see above) is set to a true value. The value you specify here
 will be prepended to any key names your C<dbi_get> generates. This is
 useful when you're grabbing a single record from the database and

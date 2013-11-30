@@ -19,5 +19,7 @@ my $builder = Module::Build->new(
     add_to_cleanup      => [ 'App-ZofCMS-Plugin-DBI-*' ],
     create_makefile_pl => 'traditional',
 );
-
+if ( $ENV{RELEASE_TESTING} ) {
+    system('pod2text lib/App/ZofCMS/Plugin/DBI.pm > README');
+}
 $builder->create_build_script();
