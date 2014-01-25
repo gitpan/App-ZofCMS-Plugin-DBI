@@ -1,5 +1,9 @@
 Revision history for App-ZofCMS-Plugin-DBI
 
+1.001001  2014-01-25
+        - Converted to dzil
+        - Filled RT#91373 ($dbh in ->process wishlist)
+
 0.0404  2013-11-30
         - Fixed a broken test
         - Added autogeneration of README from POD

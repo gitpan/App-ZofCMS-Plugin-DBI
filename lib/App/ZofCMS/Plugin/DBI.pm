@@ -3,7 +3,7 @@ package App::ZofCMS::Plugin::DBI;
 use warnings;
 use strict;
 
-our $VERSION = '0.0404';
+our $VERSION = '1.001001';
 
 use strict;
 use warnings;
@@ -111,9 +111,10 @@ sub _do_dbi_get {
                     @{ $get->{sql} },
                 );
 
-                if ( $get->{process} ) {
-                    $get->{process}->( $data_ref, $template, $query, $config );
-                }
+                $get->{process} and $get->{process}->(
+                    $data_ref, $template,
+                    $query, $config, $dbh,
+                );
 
                 my $is_hash = ${ $get->{sql} || []}[1];
                 $is_hash = ref $is_hash->{Slice} eq 'HASH' ? 1 : 0;
@@ -343,7 +344,7 @@ C<user>, C<pass> and C<opt> keys here if you wish.
             sql     => [ 'SELECT * FROM test' ],
             on_data => 'has_data',
             process => sub {
-                my ( $data_ref, $template, $query, $config ) = @_;
+                my ( $data_ref, $template, $query, $config, $dbh ) = @_;
             }
         },
     }
@@ -501,7 +502,7 @@ usage for this would be to display some message if no data is available; e.g.:
 
     dbi_get => {
         process => sub {
-            my ( $data_ref, $template, $query, $config ) = @_;
+            my ( $data_ref, $template, $query, $config, $dbh ) = @_;
             # do stuff
         }
     ...
@@ -510,7 +511,7 @@ B<Optional>. Takes a subref as a value. When specified the sub will be executed 
 the data is fetched. The C<@_> will contain the following (in that order):
 C<$data_ref> - the return of L<DBI>'s C<selectall_arrayref> call, this may have other
 options later on when more methods are supported, the ZofCMS Template hashref, query
-hashref and L<App::ZofCMS::Config> object.
+hashref, L<App::ZofCMS::Config> object, and finally the database handle.
 
 =head2 C<dbi_set>
 
@@ -553,6 +554,11 @@ values are values. C<$template> is a hashref of your ZofCMS template.
 C<$config> is the L<App::ZofCMS::Config> object and C<$dbh> is L<DBI>'s
 database handle object.
 
+=head1 REPOSITORY
+
+Fork this module on GitHub:
+L<https://github.com/zoffixznet/App-ZofCMS-Plugin-DBI>
+
 =head1 AUTHOR
 
 Zoffix Znet, C<< <zoffix at cpan.org> >>
@@ -560,7 +566,10 @@ Zoffix Znet, C<< <zoffix at cpan.org> >>
 
 =head1 BUGS
 
-Please report any bugs or feature requests to C<bug-app-zofcms-plugin-dbi at rt.cpan.org>, or through
+Please report any bugs or feature requests on GitHub
+L<https://github.com/zoffixznet/App-ZofCMS-Plugin-DBI/issues>
+or, alternatively and not preferred, RT:
+C<bug-app-zofcms-plugin-dbi at rt.cpan.org>, or through
 the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=App-ZofCMS-Plugin-DBI>.  I will be notified, and then you'll
 automatically be notified of progress on your bug as I make changes.
 
